@@ -17,18 +17,20 @@ import (
 func main() {
 	// Buatkan channel untuk komunikasi antara goroutine
 	dataChan := make(chan model.Data)
+	doneChan := make(chan bool)
 
 	// Buatkan slice untuk menyimpan data
 	var dataSlice []model.Data
 
 	// Jalankan goroutine untuk proses penyimpanan data
-	go service.ProcessData(dataChan, dataSlice)
+	go service.ProcessData(dataChan, &dataSlice)
 
 	// Proses penambahan data ke channel
 	for i := 1; i <= 100; i++ {
 		go func(id int) {
 			fmt.Println("Mengirim data ke-", i)
 			dataChan <- model.Data{Id: id, Name: fmt.Sprintf("Data %d", id)}
+			doneChan <- true
 		}(i)
 	}
 
@@ -37,7 +39,7 @@ func main() {
 	fmt.Scanln()
 
 	// Tutup channel
-	close(dataChan)
+	<-doneChan
 
 	// Tunggu sampai semua goroutine selesai
 	fmt.Printf("Total data disimpan: %d\n", len(dataSlice))
