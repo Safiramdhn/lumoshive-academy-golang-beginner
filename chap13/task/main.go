@@ -29,7 +29,7 @@ import (
 
 func init() {
 	utils.ClearScreen()
-	fmt.Println("Selamat datang di aplikasi belanja online")
+	fmt.Println("Welcome to online shopping apps")
 }
 
 func main() {
