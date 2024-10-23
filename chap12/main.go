@@ -35,7 +35,7 @@ type Sensor struct {
 
 func monitorSensors(wg *sync.WaitGroup, sc chan Sensor, name string, minValue, maxValue float64) {
 	defer wg.Done()
-	for i := 0; i < 3; i++ {
+	for i := 0; i < numSensors; i++ {
 		data := Sensor{
 			Name:  name,
 			Value: minValue + rand.Float64()*(maxValue-minValue),
@@ -46,26 +46,26 @@ func monitorSensors(wg *sync.WaitGroup, sc chan Sensor, name string, minValue, m
 }
 
 func main() {
-	sensorCh := make(chan Sensor, 3)
+	sensorCh := make(chan Sensor, numSensors)
 	var wg sync.WaitGroup
-	// doneChan := make(chan bool)
 
 	runtimeCPU := runtime.NumCPU()
 	fmt.Printf("CPU: %v\n", runtimeCPU)
 	runtime.GOMAXPROCS(4)
 
-	wg.Add(3)
+	wg.Add(numSensors)
 	go monitorSensors(&wg, sensorCh, "Suhu", 0, 100)
 	go monitorSensors(&wg, sensorCh, "Kelembaban", 0, 100)
 	go monitorSensors(&wg, sensorCh, "Tekanan", 0, 100)
 
-	go func() {
-		wg.Wait()       // Tunggu semua goroutine selesai
-		close(sensorCh) // Tutup channel setelah semua sensor selesai
-	}()
-
 	ticker := time.NewTicker(tickerInterval)
 	timeout := timeoutDuration
+
+	go func() {
+		wg.Wait() // Tunggu semua goroutine selesai
+		ticker.Stop()
+		close(sensorCh) // Tutup channel setelah semua sensor selesai
+	}()
 
 	for {
 		select {
@@ -79,13 +79,12 @@ func main() {
 					return
 				}
 				fmt.Printf("Menerima data dari sensor %s: %.2f\n", sensorData.Name, sensorData.Value)
-			case <-time.After(timeout):
-				fmt.Println("Sensor timeout")
-				return
 			}
+		case <-time.After(timeout):
+			fmt.Println("Sensor timeout")
+			return
 		}
 	}
 
-	ticker.Stop()
 	fmt.Println("Semua sensor telah selesai di proses")
 }
