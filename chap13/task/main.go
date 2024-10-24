@@ -116,6 +116,7 @@ func handleProductList() {
 func handleAddToCart(cart *product.Cart) {
 	for {
 		utils.ClearScreen()
+		fmt.Println("--------- Add To Cart ---------")
 		var id int
 		product.PrintProductList()
 		fmt.Println("Enter product id :")
@@ -130,6 +131,8 @@ func handleAddToCart(cart *product.Cart) {
 }
 
 func handleViewCart(cart product.Cart) {
+	utils.ClearScreen()
+	fmt.Println("--------- Cart ---------")
 	if len(cart.Product) == 0 {
 		fmt.Println("No products added to the cart.")
 		time.Sleep(3 * time.Second)
@@ -140,6 +143,8 @@ func handleViewCart(cart product.Cart) {
 }
 
 func handleCheckout(cart *product.Cart) {
+	fmt.Println("--------- Check ---------")
+	utils.ClearScreen()
 	if len(cart.Product) == 0 {
 		fmt.Println("Please add products to the cart first.")
 		time.Sleep(3 * time.Second)
@@ -150,6 +155,7 @@ func handleCheckout(cart *product.Cart) {
 }
 
 func confirmLogout() bool {
+	fmt.Println("---------")
 	fmt.Println("If you log out, your data will be removed. Continue? (y/n)")
 	var response string
 	fmt.Scan(&response)
@@ -157,6 +163,7 @@ func confirmLogout() bool {
 }
 
 func promptReturnToMainMenu() {
+	fmt.Println("---------")
 	fmt.Println("Back to main menu? (y/n)")
 	var response string
 	fmt.Scan(&response)
@@ -167,6 +174,7 @@ func promptReturnToMainMenu() {
 }
 
 func promptContinue(action string) bool {
+	fmt.Println("---------")
 	fmt.Printf("%s/back to main menu? (y/n)\n", action)
 	var response string
 	fmt.Scan(&response)
