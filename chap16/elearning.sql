@@ -1,6 +1,5 @@
 
 CREATE TYPE status_enum AS enum ('active', 'deleted');
-create type role_enum as enum ('admin', 'student', 'mentor');
 create type attendance_status_enum as enum ('ontime', 'late');
 create  type assignment_status_enum as enum ('not_started', 'submited','missing');
 
@@ -8,7 +7,6 @@ CREATE TABLE users (
     id INT PRIMARY KEY NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR NOT NULL,
-    user_role role_enum,
     status status_enum DEFAULT 'active',
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
