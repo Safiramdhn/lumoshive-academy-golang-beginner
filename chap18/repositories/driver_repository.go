@@ -3,7 +3,6 @@ package repositories
 import (
 	"database/sql"
 	"golang-beginner-18/models"
-	"time"
 )
 
 type DriverRepositoryDB struct {
@@ -54,36 +53,53 @@ func (repo *DriverRepositoryDB) GetAll() (*[]models.Driver, error) {
 	return &drivers, nil
 }
 
-func (repo *DriverRepositoryDB) GetActiveDriversByMonth(startDate, endDate time.Time) ([]interface{}, error) {
+func (repo *DriverRepositoryDB) GetActiveDriversByMonth() (*[]models.OrderSummary, error) {
 	sqlStatement := `
-	SELECT D.ID, CONCAT(D.FIRST_NAME, ' ', D.LAST_NAME) AS DRIVER_FULL_NAME,
-	(
-		SELECT
-			COUNT(O.ID)
-		FROM
-			ORDERS O
-		WHERE
-			O.DRIVER_ID = D.ID 
-			AND O.ORDER_TIME BETWEEN $1 AND $2
-	)
-	FROM DRIVER D`
-	rows, err := repo.DB.Query(sqlStatement, startDate, endDate)
+	SELECT DATE_TRUNC('month', o.order_date) AS month, d.id, CONCAT(d.first_name, ' ', d.last_name) AS driver_full_name,
+ 		COUNT(o.driver_id) AS total_order
+	FROM orders o
+	JOIN driver d ON o.driver_id = d.id
+	GROUP BY month, d.id, driver_full_name
+	ORDER BY month, total_order DESC;`
+
+	rows, err := repo.DB.Query(sqlStatement)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var drivers []interface{}
+	var drivers []models.OrderSummary
 	for rows.Next() {
-		driver := struct {
-			Id             int
-			DriverFullName string
-			TotalOrders    int
-		}{}
-		err := rows.Scan(&driver.Id, &driver.DriverFullName, &driver.TotalOrders)
+		var driver models.OrderSummary
+		err := rows.Scan(&driver.Month, &driver.Id, &driver.Name, &driver.TotalOrders)
 		if err != nil {
 			return nil, err
 		}
 		drivers = append(drivers, driver)
 	}
-	return drivers, nil
+	return &drivers, nil
+}
+func (repo *DriverRepositoryDB) CountDriverLogin() (int, int, error) {
+	// Get the number of active driver and the total number of driver
+	sqlStatement := `SELECT COUNT(d.id) AS total_driver_login
+	FROM driver d
+	JOIN users u ON d.user_id = u.id
+	WHERE u.login_time IS NOT NULL;`
+
+	row := repo.DB.QueryRow(sqlStatement)
+	var totalDriverLogin int
+	var err error
+	if err = row.Scan(&totalDriverLogin); err != nil {
+		return 0, 0, err
+	}
+	sqlStatement = `SELECT COUNT(c.id) AS total_driver_login
+	FROM driver c
+	JOIN users u ON c.user_id = u.id
+	WHERE u.logout_time IS NOT NULL;`
+
+	row = repo.DB.QueryRow(sqlStatement)
+	var totalDriverLogout int
+	if err = row.Scan(&totalDriverLogout); err != nil {
+		return 0, 0, err
+	}
+	return totalDriverLogin, totalDriverLogout, nil
 }

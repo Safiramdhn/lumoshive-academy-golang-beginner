@@ -3,7 +3,6 @@ package repositories
 import (
 	"database/sql"
 	"golang-beginner-18/models"
-	"time"
 )
 
 type CustomerRepositoryDB struct {
@@ -24,38 +23,38 @@ func (repo *CustomerRepositoryDB) Create(customer *models.Customer) error {
 	return nil
 }
 
-func (repo *CustomerRepositoryDB) GetById(id int) (*models.Customer, error) {
-	// Get a customer by id from the database
-	sqlStatement := `SELECT id, first_name, last_name, user_id FROM customer WHERE id = $1;`
-	row := repo.DB.QueryRow(sqlStatement, id)
-	customer := &models.Customer{}
-	err := row.Scan(&customer.Id, &customer.FirstName, &customer.LastName, &customer.UserId)
-	if err != nil {
-		return nil, err
-	}
-	return customer, nil
-}
+// func (repo *CustomerRepositoryDB) GetById(id int) (*models.Customer, error) {
+// 	// Get a customer by id from the database
+// 	sqlStatement := `SELECT id, first_name, last_name, user_id FROM customer WHERE id = $1;`
+// 	row := repo.DB.QueryRow(sqlStatement, id)
+// 	customer := &models.Customer{}
+// 	err := row.Scan(&customer.Id, &customer.FirstName, &customer.LastName, &customer.UserId)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return customer, nil
+// }
 
-func (repo *CustomerRepositoryDB) GetAll() (*[]models.Customer, error) {
-	sqlStatement := `SELECT id, first_name, last_name, user_id FROM customer;`
-	rows, err := repo.DB.Query(sqlStatement)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	customers := []models.Customer{}
-	for rows.Next() {
-		customer := &models.Customer{}
-		err := rows.Scan(&customer.Id, &customer.FirstName, &customer.LastName, &customer.UserId)
-		if err != nil {
-			return nil, err
-		}
-		customers = append(customers, *customer)
-	}
-	return &customers, nil
-}
+// func (repo *CustomerRepositoryDB) GetAllUsers() (*[]models.Customer, error) {
+// 	sqlStatement := `SELECT id, first_name, last_name, user_id FROM customer;`
+// 	rows, err := repo.DB.Query(sqlStatement)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+// 	customers := []models.Customer{}
+// 	for rows.Next() {
+// 		customer := &models.Customer{}
+// 		err := rows.Scan(&customer.Id, &customer.FirstName, &customer.LastName, &customer.UserId)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		customers = append(customers, *customer)
+// 	}
+// 	return &customers, nil
+// }
 
-func (repo *CustomerRepositoryDB) CheckCustomer() (int, int, error) {
+func (repo *CustomerRepositoryDB) CountCustomerLogin() (int, int, error) {
 	// Get the number of active customers and the total number of customers
 	sqlStatement := `SELECT COUNT(c.id) AS total_customer_login
 	FROM customer c
@@ -81,35 +80,29 @@ func (repo *CustomerRepositoryDB) CheckCustomer() (int, int, error) {
 	return totalCustomerLogin, totalCustomerLogout, nil
 }
 
-func (repo *CustomerRepositoryDB) GetFrequentCustomersByMonth(startDate, endDate time.Time) ([]interface{}, error) {
-	sqlStatement := `SELECT concat(c.first_name, ' ', c.last_name) AS customer_name,
-	(
-		SELECT
-			COUNT(O.ID)
-		FROM
-			ORDERS O
-		WHERE
-			O.customer_id = c.ID 
-			AND O.ORDER_TIME BETWEEN $1 AND $2
-	)
-	FROM customer c`
+func (repo *CustomerRepositoryDB) GetFrequentCustomersByMonth() (*[]models.OrderSummary, error) {
+	sqlStatement := `
+	SELECT DATE_TRUNC('month', order_date) AS month, c.id, concat(c.first_name, ' ', c.last_name) AS customer_name, COUNT(o.id) AS order_count
+	FROM orders o
+	JOIN customer c ON o.customer_id = c.id
+	GROUP BY month, customer_name, c.id
+	ORDER BY month, order_count DESC;
+	`
 
-	rows, err := repo.DB.Query(sqlStatement, startDate, endDate)
+	rows, err := repo.DB.Query(sqlStatement)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var customers []interface{}
+	var customerOrderSumarries []models.OrderSummary
 	for rows.Next() {
-		customer := struct {
-			Name       string
-			OrderCount int
-		}{}
-		err := rows.Scan(&customer.Name, &customer.OrderCount)
+		var orderSumarry models.OrderSummary
+
+		err := rows.Scan(&orderSumarry.Month, &orderSumarry.Id, &orderSumarry.Name, &orderSumarry.TotalOrders)
 		if err != nil {
 			return nil, err
 		}
-		customers = append(customers, customer)
+		customerOrderSumarries = append(customerOrderSumarries, orderSumarry)
 	}
-	return customers, nil
+	return &customerOrderSumarries, nil
 }

@@ -1,11 +1,6 @@
 package models
 
-import (
-	"database/sql"
-	"time"
-
-	_ "github.com/lib/pq"
-)
+import "time"
 
 type Orders struct {
 	Id           int
@@ -18,7 +13,12 @@ type Orders struct {
 	OrderDate    time.Time
 	OrderTime    time.Time
 	OrderStatus  string
-	Status       string
-	CreatedAt    sql.NullTime
-	UpdatedAt    sql.NullTime
+	TotalOrders  int
+}
+
+type OrderSummary struct {
+	Month       time.Time
+	Id          int
+	Name        string
+	TotalOrders int
 }

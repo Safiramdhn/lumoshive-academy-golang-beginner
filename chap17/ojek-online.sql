@@ -50,7 +50,7 @@ CREATE TABLE "orders" (
   "street_name" varchar(255),
   "order_time" time,
   "order_date" date,
-  "order_status" order_status_enum,
+  "order_status" order_status_enum default "on_the_way",
   "status" status_enum DEFAULT 'active',
   "created_at" TIMESTAMP DEFAULT (NOW()),
   "updated_at" TIMESTAMP DEFAULT (NOW())
@@ -152,19 +152,19 @@ where u.logout_time is not null
 
 --dapat melihat driver yang rajin mengambil order setiap bulan
 
--- SELECT
---     o.driver_id,
---     CONCAT(d.first_name, ' ', d.last_name) AS driver_full_name,
---     COUNT(o.driver_id) AS total_order,
---     DATE_TRUNC('month', o.order_time) AS month
--- FROM
---     orders o
--- JOIN
---     driver d ON o.driver_id = d.id
--- GROUP BY
---     month, o.driver_id, d.first_name, d.last_name
--- ORDER BY
---     total_order DESC;
+SELECT
+    o.driver_id,
+    CONCAT(d.first_name, ' ', d.last_name) AS driver_full_name,
+    COUNT(o.driver_id) AS total_order,
+    DATE_TRUNC('month', o.order_time) AS month
+FROM
+    orders o
+JOIN
+    driver d ON o.driver_id = d.id
+GROUP BY
+    month, o.driver_id, d.first_name, d.last_name
+ORDER BY
+    total_order DESC;
 
 SELECT D.ID,
        CONCAT(D.FIRST_NAME, ' ', D.LAST_NAME) AS DRIVER_FULL_NAME,
@@ -173,3 +173,28 @@ SELECT D.ID,
    WHERE O.DRIVER_ID = D.ID
      AND O.ORDER_TIME BETWEEN '2023-10-01 00:00:00' AND '2023-10-31 23:59:59' )
 FROM DRIVER D;
+
+-- dapat melihat pukul berapa saja order yang ramai dan sepi
+SELECT 
+    EXTRACT(HOUR FROM order_time) AS hour,
+    COUNT(id) AS total_orders
+FROM orders
+GROUP BY hour
+ORDER BY total_orders DESC;
+
+SELECT 
+    TO_CHAR(order_time, 'HH24:00') || ' - ' || TO_CHAR(order_time + INTERVAL '1 hour', 'HH24:00') AS hour_range,
+    COUNT(id) AS total_orders
+FROM orders
+GROUP BY hour_range
+ORDER BY total_orders DESC;
+
+SELECT 
+    TO_CHAR(order_time, 'HH24:00') AS hour,
+    COUNT(id) AS total_orders
+FROM orders
+GROUP BY hour
+ORDER BY total_orders DESC;
+
+select * from customer
+select * from driver

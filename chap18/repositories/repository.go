@@ -15,7 +15,7 @@ type UserRepository interface {
 type CustomersRepository interface {
 	Create(customer *models.Customer) error
 	GetAll() (*[]models.Customer, error)
-	CheckCustomer() (int, int, error)
+	CountCustomerLogin() (int, int, error)
 	GetById(id int) (*models.Customer, error)
 	GetFrequentCustomersByMonth(startDate, endDate time.Time) ([]interface{}, error)
 }
