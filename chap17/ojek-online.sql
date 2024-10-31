@@ -123,6 +123,14 @@ HAVING COUNT(o.id) > 0 -- replace with the desired threshold
 ORDER BY month,
          total_orders DESC;
 
+SELECT c.id,
+       CONCAT(c.first_name, ' ', c.last_name) AS customer_full_name,
+  ( SELECT COUNT(O.ID)
+   FROM orders o
+   WHERE  o.customer_id = c.id
+     AND o.order_date BETWEEN '2024-10-01 00:00:00' AND '2024-10-31 23:59:59' )
+FROM customer c;
+
 --dapat melihat daerah mana saja yang banyak ordernya
 SELECT 
 city,
@@ -168,10 +176,12 @@ ORDER BY
 
 SELECT D.ID,
        CONCAT(D.FIRST_NAME, ' ', D.LAST_NAME) AS DRIVER_FULL_NAME,
-  ( SELECT COUNT(O.ID)
+  ( SELECT COUNT(O.ID) as total_order
    FROM ORDERS O
    WHERE O.DRIVER_ID = D.ID
-     AND O.ORDER_TIME BETWEEN '2023-10-01 00:00:00' AND '2023-10-31 23:59:59' )
+     AND O.ORDER_DATE BETWEEN '2024-10-01 00:00:00' AND '2024-10-31 23:59:59' 
+	 )
+	 
 FROM DRIVER D;
 
 -- dapat melihat pukul berapa saja order yang ramai dan sepi

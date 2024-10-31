@@ -68,7 +68,9 @@ func GetFrequentCustomersByMonth(db *sql.DB) error {
 	}
 
 	for _, orderSummary := range *customerOrderSumarries {
-		fmt.Printf("Month: %v, ID: %d, Name: %s, User Type: Customer, Total Orders: %d\n", orderSummary.Month, orderSummary.Id, orderSummary.Name, orderSummary.TotalOrders)
+		// fmt.Printf("Month: %v, ID: %d, Name: %s, User Type: Customer, Total Orders: %d\n", orderSummary.Month, orderSummary.Id, orderSummary.Name, orderSummary.TotalOrders)
+		fmt.Printf("ID: %d, Name: %s, User Type: Customer, Total Orders: %d\n", orderSummary.Id, orderSummary.Name, orderSummary.TotalOrders)
+
 	}
 
 	return nil

@@ -17,7 +17,7 @@ type Orders struct {
 }
 
 type OrderSummary struct {
-	Month       time.Time
+	// Month       time.Time
 	Id          int
 	Name        string
 	TotalOrders int

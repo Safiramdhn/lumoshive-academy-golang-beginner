@@ -54,13 +54,21 @@ func (repo *DriverRepositoryDB) GetAll() (*[]models.Driver, error) {
 }
 
 func (repo *DriverRepositoryDB) GetActiveDriversByMonth() (*[]models.OrderSummary, error) {
-	sqlStatement := `
-	SELECT DATE_TRUNC('month', o.order_date) AS month, d.id, CONCAT(d.first_name, ' ', d.last_name) AS driver_full_name,
- 		COUNT(o.driver_id) AS total_order
-	FROM orders o
-	JOIN driver d ON o.driver_id = d.id
-	GROUP BY month, d.id, driver_full_name
-	ORDER BY month, total_order DESC;`
+	// sqlStatement := `
+	// SELECT DATE_TRUNC('month', o.order_date) AS month, d.id, CONCAT(d.first_name, ' ', d.last_name) AS driver_full_name,
+	// 	COUNT(o.driver_id) AS total_order
+	// FROM orders o
+	// JOIN driver d ON o.driver_id = d.id
+	// GROUP BY month, d.id, driver_full_name
+	// ORDER BY month, total_order DESC;`
+
+	sqlStatement := `SELECT D.ID,
+       CONCAT(D.FIRST_NAME, ' ', D.LAST_NAME) AS DRIVER_FULL_NAME,
+  ( SELECT COUNT(O.ID)
+   FROM ORDERS O
+   WHERE O.DRIVER_ID = D.ID
+     AND O.ORDER_DATE BETWEEN '2024-10-01 00:00:00' AND '2024-10-31 23:59:59' )
+FROM DRIVER D;`
 
 	rows, err := repo.DB.Query(sqlStatement)
 	if err != nil {
@@ -70,7 +78,8 @@ func (repo *DriverRepositoryDB) GetActiveDriversByMonth() (*[]models.OrderSummar
 	var drivers []models.OrderSummary
 	for rows.Next() {
 		var driver models.OrderSummary
-		err := rows.Scan(&driver.Month, &driver.Id, &driver.Name, &driver.TotalOrders)
+		// err := rows.Scan(&driver.Month, &driver.Id, &driver.Name, &driver.TotalOrders)
+		err := rows.Scan(&driver.Id, &driver.Name, &driver.TotalOrders)
 		if err != nil {
 			return nil, err
 		}

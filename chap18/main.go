@@ -14,10 +14,10 @@ package main
 
 import (
 	"golang-beginner-18/database"
-	"golang-beginner-18/models"
+	// "golang-beginner-18/models"
 	"golang-beginner-18/services"
 	"log"
-	"time"
+	// "time"
 )
 
 func main() {
@@ -47,23 +47,23 @@ func main() {
 	// services.CreateOrder(db, newOrder)
 
 	//dapat melihat jumlah customer yang masih login dan logout
-	services.CountCustomerLogin(db)
+	// services.CountCustomerLogin(db)
 
 	//dapat melihat customer yang sering order tiap bulan (tampilkan namanya)
 	services.GetFrequentCustomersByMonth(db)
 
 	//--dapat melihat jumlah driver yang masih login dan logout
-	services.CountDriverLogin(db)
+	// services.CountDriverLogin(db)
 
 	//dapat melihat driver yang rajin mengambil order setiap bulan
-	services.GetFrequentDriversByMonth(db)
+	// services.GetFrequentDriversByMonth(db)
 
 	// dapat melihat total order setiap bulan
-	services.GetTotalOrder(db)
+	// services.GetTotalOrder(db)
 
 	//dapat melihat pukul berapa saja order yang ramai dan sepi
-	services.GetOrderPeakHours(db)
+	// services.GetOrderPeakHours(db)
 
 	// dapat melihat daerah mana saja yang banyak ordernya
-	services.GetPopularAreas(db)
+	// services.GetPopularAreas(db)
 }

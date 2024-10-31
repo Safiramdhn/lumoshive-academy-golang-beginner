@@ -81,13 +81,22 @@ func (repo *CustomerRepositoryDB) CountCustomerLogin() (int, int, error) {
 }
 
 func (repo *CustomerRepositoryDB) GetFrequentCustomersByMonth() (*[]models.OrderSummary, error) {
+	// sqlStatement := `
+	// SELECT DATE_TRUNC('month', order_date) AS month, c.id, concat(c.first_name, ' ', c.last_name) AS customer_name, COUNT(o.id) AS order_count
+	// FROM orders o
+	// JOIN customer c ON o.customer_id = c.id
+	// GROUP BY month, customer_name, c.id
+	// ORDER BY month, order_count DESC;
+	// `
+
 	sqlStatement := `
-	SELECT DATE_TRUNC('month', order_date) AS month, c.id, concat(c.first_name, ' ', c.last_name) AS customer_name, COUNT(o.id) AS order_count
-	FROM orders o
-	JOIN customer c ON o.customer_id = c.id
-	GROUP BY month, customer_name, c.id
-	ORDER BY month, order_count DESC;
-	`
+	SELECT c.id,
+       CONCAT(c.first_name, ' ', c.last_name) AS customer_full_name,
+  ( SELECT COUNT(O.ID)
+   FROM orders o
+   WHERE  o.customer_id = c.id
+     AND o.order_date BETWEEN '2024-10-01 00:00:00' AND '2024-10-31 23:59:59' )
+FROM customer c;`
 
 	rows, err := repo.DB.Query(sqlStatement)
 	if err != nil {
@@ -98,7 +107,8 @@ func (repo *CustomerRepositoryDB) GetFrequentCustomersByMonth() (*[]models.Order
 	for rows.Next() {
 		var orderSumarry models.OrderSummary
 
-		err := rows.Scan(&orderSumarry.Month, &orderSumarry.Id, &orderSumarry.Name, &orderSumarry.TotalOrders)
+		// err := rows.Scan(&orderSumarry.Month, &orderSumarry.Id, &orderSumarry.Name, &orderSumarry.TotalOrders)
+		err := rows.Scan(&orderSumarry.Id, &orderSumarry.Name, &orderSumarry.TotalOrders)
 		if err != nil {
 			return nil, err
 		}
