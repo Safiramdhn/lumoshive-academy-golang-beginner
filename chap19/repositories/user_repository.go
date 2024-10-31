@@ -18,7 +18,7 @@ func NewUserRepositoryDB(db *sql.DB) *UserRepositoryDB {
 	return &UserRepositoryDB{DB: db}
 }
 
-func (repo *UserRepositoryDB) Create(email, password, first_name, last_name, role string) error {
+func (repo *UserRepositoryDB) Create(email, password, first_name, last_name, role string, added_by int) error {
 	tx, err := repo.DB.Begin()
 	if err != nil {
 		return err
@@ -51,15 +51,14 @@ func (repo *UserRepositoryDB) Create(email, password, first_name, last_name, rol
 			return err
 		}
 	case "student":
-		sqlStatement = `INSERT INTO student (first_name, last_name, user_id) VALUES ($1, $2, $3);`
-		_, err = tx.Exec(sqlStatement, first_name, last_name, userId)
+		sqlStatement = `INSERT INTO student (first_name, last_name, user_id, added_by) VALUES ($1, $2, $3, $4);`
+		_, err = tx.Exec(sqlStatement, first_name, last_name, userId, added_by)
 		if err != nil {
 			return err
 		}
 	case "mentor":
-		sqlStatement = `INSERT INTO mentor (first_name, last_name, user_id) VALUES ($
-		first_name, last_name, userId);`
-		_, err = tx.Exec(sqlStatement, first_name, last_name, userId)
+		sqlStatement = `INSERT INTO mentor (first_name, last_name, user_id, added_by) VALUES ($1, $2, $3, $4);`
+		_, err = tx.Exec(sqlStatement, first_name, last_name, userId, added_by)
 		if err != nil {
 			return err
 		}

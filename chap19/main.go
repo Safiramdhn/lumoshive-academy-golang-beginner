@@ -48,6 +48,22 @@ func main() {
 		handlers.GetAllStudentsHandler(db)
 	case "update-user":
 		handlers.UpdateUserHandler(db)
+	case "create-mentor":
+		handlers.CreateMentorHandler(db)
+	case "get-mentor-by-id":
+		handlers.GetMentorByIdHandler(db)
+	case "get-all-mentors":
+		handlers.GetAllMentorsHandler(db)
+	case "update-mentor":
+		handlers.UpdateMentorHandler(db)
+	case "delete-mentor":
+		handlers.DeleteMentorHandler(db)
+	case "create-material":
+		handlers.CreateMaterialHandler(db)
+	case "get-material-by-id":
+		handlers.GetMaterialByIdHandler(db)
+	case "get-all-materials":
+		handlers.GetAllMaterialsHandler(db)
 	default:
 		fmt.Println("Invalid endpoint")
 	}

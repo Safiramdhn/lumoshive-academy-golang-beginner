@@ -22,8 +22,6 @@ func (repo *AdminRepositoryDB) Login(email, password string) (int, error) {
 	var adminId int
 	err := repo.DB.QueryRow(sqlStatement, email, password).Scan(&adminId)
 
-	fmt.Printf("err: %v\n", err)
-
 	if err == sql.ErrNoRows {
 		fmt.Println("No user found with the given email and password.")
 		return 0, nil // User not found

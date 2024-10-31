@@ -8,7 +8,7 @@ type Material struct {
 	Description string     `json:"description"`
 	MediaURL    string     `json:"media_url"`
 	AddedBy     int        `json:"added_by"`
-	Status      StatusEnum `json:"status" gorm:"default:'active'"`
-	CreatedAt   time.Time  `json:"created_at" gorm:"default:now()"`
-	UpdatedAt   time.Time  `json:"updated_at" gorm:"default:now()"`
+	Status      StatusEnum `json:"status"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }

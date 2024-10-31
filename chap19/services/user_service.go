@@ -14,12 +14,12 @@ func NewUserService(repoUser repositories.UserRepositoryDB) *UserService {
 	return &UserService{RepoUser: repoUser}
 }
 
-func (s *UserService) CreateUser(email, password, first_name, last_name, role string) error {
+func (s *UserService) CreateUser(email, password, first_name, last_name, role string, added_by int) error {
 	if email == "" || password == "" || first_name == "" || last_name == "" || role == "" {
 		return errors.New("all fields are required")
 	}
 
-	err := s.RepoUser.Create(email, password, first_name, last_name, role)
+	err := s.RepoUser.Create(email, password, first_name, last_name, role, added_by)
 	if err != nil {
 		return err
 	}
