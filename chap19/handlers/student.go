@@ -20,16 +20,6 @@ func CreateStudentHandler(db *sql.DB) {
 		AddedBy   int    `json:"added_by"`
 	}{}
 
-	fmt.Println("Input Student Data:")
-	fmt.Print("Email: ")
-	fmt.Scanln(&userInput.Email)
-	fmt.Println("Password: ")
-	fmt.Scanln(&userInput.Password)
-	fmt.Print("First Name: ")
-	fmt.Scanln(&userInput.FirstName)
-	fmt.Print("Last Name: ")
-	fmt.Scanln(&userInput.LastName)
-
 	file, err := os.OpenFile("body.json", os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		fmt.Println("Open file error message: ", err)
